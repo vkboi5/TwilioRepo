@@ -1,4 +1,4 @@
-import { Request, RequestHandler, Response } from 'express';
+import { Request, RequestHandler, response, Response } from 'express';
 import { twiml, validateExpressRequest } from 'twilio';
 import { ServerConfig } from '../common/types';
 import { log } from '../utils/log';
@@ -44,6 +44,16 @@ export function createTwimlRoute(
       recipientType === 'number' ? serverConfig.CALLER_ID : req.body.From;
 
     const twimlResponse = new VoiceResponse();
+    const start = twimlResponse.start();
+
+    // Correctly using languageCode instead of language
+    start.transcription({
+      languageCode: 'en-US', // Corrected field
+      statusCallbackUrl: 'https://c504-2401-4900-1909-b804-5dcb-be56-8660-ab0e.ngrok-free.app/transcription',  // Your WebSocket endpoint
+    });
+    console.log('Generated TwiML:', twimlResponse.toString());
+
+
     const dial = twimlResponse.dial({
       answerOnBridge: true,
       callerId,

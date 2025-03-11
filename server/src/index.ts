@@ -1,29 +1,24 @@
+// server/src/index.ts
 import { createExpressApp } from './server';
 import { getPort, getServerCredentials } from './utils/env';
 import { log, warn } from './utils/log';
 
 async function main() {
-  log('Ahoy! Starting Twilio Voice React Native server...');
+  log('Starting Twilio Voice React Native server...');
 
   const serverCredentials = getServerCredentials();
-  if (typeof serverCredentials === 'undefined') {
-    warn(
-      'Incomplete Server Credentials, please validate your environment ' +
-        'variables.',
-    );
+  if (!serverCredentials) {
+    warn('Incomplete Server Credentials');
     return;
   }
 
   const port = getPort() ?? 3030;
+  const server = createExpressApp(serverCredentials);
 
-  const app = createExpressApp(serverCredentials);
-
-  app.listen(port, () =>
-    log(
-      'Twilio Voice React Native server succesfully started on ' +
-        `port "${port}".`,
-    ),
-  );
+  server.listen(port, () => {
+    log(`Server running on port ${port}`);
+    log('WebSocket server is ready for connections');
+  });
 }
 
-main();
+main().catch(console.error);

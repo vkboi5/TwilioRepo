@@ -20,6 +20,7 @@ import { callMap } from '../../../util/voice';
 import { settlePromise } from '../../../util/settlePromise';
 import { makeOutgoingCall } from './outgoingCall';
 import { acceptCallInvite } from './callInvite';
+import { getNavigate } from '../../../util/navigation';
 
 const sliceName = 'activeCall' as const;
 
@@ -37,7 +38,7 @@ type HandleCallRejectValue =
       error: SerializedError;
     };
 export const handleCallActionType = generateThunkActionTypes(
-  `${sliceName}/handleCall`,
+  `${sliceName}/handleCall`
 );
 export const handleCall = createTypedAsyncThunk<
   { callInfo: CallInfo; customParameters?: OutgoingCallParameters },
@@ -48,6 +49,19 @@ export const handleCall = createTypedAsyncThunk<
   async ({ call }, { dispatch, requestId, rejectWithValue }) => {
     const callInfo = getCallInfo(call);
     callMap.set(requestId, call);
+
+    // Handle Connected event - redirect to transcription
+    call.once(TwilioCall.Event.Connected, async () => {
+      const info = getCallInfo(call);
+      if (typeof info.initialConnectedTimestamp === 'undefined') {
+        info.initialConnectedTimestamp = Date.now();
+      }
+      dispatch(setActiveCallInfo({ id: requestId, info }));
+
+      // Navigate to transcription screen
+      const navigation = await getNavigate();
+      navigation.navigate('Transcription Screen');
+    });
 
     let customParameters: OutgoingCallParameters | undefined;
     if (typeof callInfo.sid === 'string') {
@@ -113,7 +127,7 @@ export const handleCall = createTypedAsyncThunk<
  * Disconnect active call action.
  */
 export const disconnectActionType = generateThunkActionTypes(
-  `${sliceName}/disconnect`,
+  `${sliceName}/disconnect`
 );
 export type DisconnectRejectValue =
   | {
@@ -250,7 +264,7 @@ export const sendDigitsActiveCall = createTypedAsyncThunk<
 /**
  * Slice configuration.
  */
-export type ActiveCall = OutgoingCall | IncomingCall;
+export type ActiveCall = IncomingCall | OutgoingCall;
 export const activeCallAdapter = createEntityAdapter<ActiveCall>();
 export const activeCallSlice = createSlice({
   name: 'activeCall',

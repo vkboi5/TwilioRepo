@@ -6,6 +6,7 @@ import { type StackParamList } from './types';
 import SignIn from './SignIn';
 import CallInvite from './CallInvite';
 import Busy from '../components/Busy';
+import Transcription from './Transcription/index'
 
 const Stack = createNativeStackNavigator<StackParamList>();
 
@@ -25,6 +26,7 @@ const StackNavigator = () => {
       <Stack.Screen name="Call" component={ActiveCall} />
       <Stack.Screen name="Incoming Call" component={CallInvite} />
       <Stack.Screen name="Sign In" component={SignIn} />
+      <Stack.Screen name="Transcription Screen" component={Transcription} />
     </Stack.Navigator>
   );
 };
