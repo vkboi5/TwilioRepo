@@ -71,4 +71,4 @@ yarn-error.log
 .env
 ###
 # Google Services
-google-services.json
+google-stt-tts.json

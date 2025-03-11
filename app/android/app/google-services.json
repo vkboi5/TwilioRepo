@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "639965391022",
+    "project_id": "nagesh-9417a",
+    "storage_bucket": "nagesh-9417a.firebasestorage.app"
+  }, 
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639965391022:android:a6d17df9a125f3fe05653f",
+        "android_client_info": {
+          "package_name": "com.twiliovoicereactnativereferenceapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB0i0FIZeIQs_MbKFVRSG13vSbPVBpc_U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
