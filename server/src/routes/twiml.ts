@@ -49,7 +49,7 @@ export function createTwimlRoute(
     // Correctly using languageCode instead of language
     start.transcription({
       languageCode: 'en-US', // Corrected field
-      statusCallbackUrl: 'https://c504-2401-4900-1909-b804-5dcb-be56-8660-ab0e.ngrok-free.app/transcription',  // Your WebSocket endpoint
+      statusCallbackUrl: 'https://5495-223-185-43-102.ngrok-free.app/transcription',  // Your WebSocket endpoint
     });
     console.log('Generated TwiML:', twimlResponse.toString());
 
