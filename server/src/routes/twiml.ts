@@ -3,9 +3,7 @@ import { twiml, validateExpressRequest } from 'twilio';
 import { ServerConfig } from '../common/types';
 import { log } from '../utils/log';
 
-export function createTwimlRoute(
-  serverConfig: ServerConfig,
-): RequestHandler {
+export function createTwimlRoute(serverConfig: ServerConfig): RequestHandler {
   const { VoiceResponse } = twiml;
 
   const logMsg = (msg: string) => {
@@ -22,7 +20,10 @@ export function createTwimlRoute(
       return;
     }
 
-    const { To: to } = req.body;
+    // Use query params if present (from redirect), otherwise body
+    const to = req.query.To || req.body.To;
+    const recipientType = req.query.recipientType || req.body.recipientType;
+
     if (typeof to !== 'string') {
       const msg = 'Missing "To".';
       logMsg(msg);
@@ -30,10 +31,11 @@ export function createTwimlRoute(
       return;
     }
 
-    const recipientType = (['client', 'number'] as const).find(
-      (r) => r === req.body.recipientType,
+    const validRecipientTypes = ['client', 'number'] as const;
+    const selectedRecipientType = validRecipientTypes.find(
+      (r) => r === recipientType,
     );
-    if (typeof recipientType === 'undefined') {
+    if (typeof selectedRecipientType === 'undefined') {
       const msg = 'Invalid "recipientType".';
       logMsg(msg);
       res.status(400).send(msg);
@@ -49,16 +51,16 @@ export function createTwimlRoute(
     // Correctly using languageCode instead of language
     start.transcription({
       languageCode: 'en-US', // Corrected field
-      statusCallbackUrl: 'https://5495-223-185-43-102.ngrok-free.app/transcription',  // Your WebSocket endpoint
+      statusCallbackUrl:
+        'https://4638-223-185-43-22.ngrok-free.app/transcription', // Your WebSocket endpoint
     });
     console.log('Generated TwiML:', twimlResponse.toString());
-
 
     const dial = twimlResponse.dial({
       answerOnBridge: true,
       callerId,
     });
-    dial[recipientType](to);
+    dial[selectedRecipientType](to);
 
     res
       .header('Content-Type', 'text/xml')

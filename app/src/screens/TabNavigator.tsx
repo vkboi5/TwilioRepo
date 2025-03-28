@@ -14,7 +14,8 @@ import { type TabParamList } from './types';
 import { getEnvVariable } from '../util/env';
 import Preferences from './Preferences';
 import Transcription from './Transcription/index';
-
+import VoiceToSign from './Voice-To-Sign/index';
+import TextToSpeech from './TextToSpeech/index';
 const HomeSource = require('../../assets/icons/home.png');
 const HomeSelectedSource = require('../../assets/icons/home-selected.png');
 const DialpadSource = require('../../assets/icons/dialpad-dark.png');
@@ -93,14 +94,10 @@ const TabNavigator: React.FC = () => {
           screenOptions={{
             headerShown: false,
           }}>
-          <Tab.Screen 
-            name="Preferences"
-            component={Preferences} 
-            options={homeTabOptions} 
-          />
+          <Tab.Screen name="Home" component={Home} options={homeTabOptions} />
           <Tab.Screen
-            name="Home" 
-            component={Home}
+            name="Preferences"
+            component={Preferences}
             options={homeTabOptions}
           />
           <Tab.Screen
@@ -108,10 +105,20 @@ const TabNavigator: React.FC = () => {
             component={Dialer}
             options={dialerTabOptions}
           />
-          <Tab.Screen 
+          <Tab.Screen
             name="Transcription Screen"
-            component={Transcription} 
-            options={homeTabOptions} 
+            component={Transcription}
+            options={homeTabOptions}
+          />
+          <Tab.Screen
+            name="Voice To Speech"
+            component={VoiceToSign}
+            options={homeTabOptions}
+          />
+          <Tab.Screen
+            name="Text To Speech"
+            component={TextToSpeech}
+            options={homeTabOptions}
           />
           {isAboutPageEnabled && (
             <Tab.Screen
@@ -151,6 +158,3 @@ const styles = StyleSheet.create({
 });
 
 export default TabNavigator;
-
-
-

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { twiml } from 'twilio';
 import { createTwimlRoute } from '../../routes/twiml';
+import { NextFunction, Request, Response } from 'express';
 
 jest.mock('../../utils/log');
 
@@ -31,17 +32,9 @@ describe('createTwimlRoute()', () => {
 
   describe('twimlRoute()', () => {
     let twimlRoute: ReturnType<typeof createTwimlRoute>;
-    let mockReq: {
-      headers: Record<any, any>;
-      body: Record<any, any>;
-    };
-    let mockRes: {
-      header: jest.Mock;
-      locals: Record<any, any>;
-      status: jest.Mock;
-      send: jest.Mock;
-    };
-    let mockNext: jest.Mock;
+    let mockReq: Partial<Request>;
+    let mockRes: Partial<Response>;
+    let mockNext: jest.MockedFunction<NextFunction>;
 
     beforeEach(() => {
       twimlRoute = createTwimlRoute(mockServerConfig);
@@ -53,98 +46,79 @@ describe('createTwimlRoute()', () => {
           To: 'mock-req-to-foobar',
           recipientType: 'client',
         },
+        query: {}, // Added for completeness
       };
       mockRes = {
-        header: jest.fn(() => mockRes),
+        header: jest.fn().mockReturnThis(),
         locals: {},
-        status: jest.fn(() => mockRes),
-        send: jest.fn(() => mockRes),
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn().mockReturnThis(),
       };
       mockNext = jest.fn();
     });
 
     it('responds with status code 400 if "To" is missing', () => {
-      mockReq.body.To = undefined;
+      mockReq.body!.To = undefined;
 
-      twimlRoute(mockReq as any, mockRes as any, mockNext);
+      twimlRoute(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.status.mock.calls).toEqual([[400]]);
-      expect(mockRes.send.mock.calls).toEqual([['Missing "To".']]);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.send).toHaveBeenCalledWith('Missing "To".');
+      expect(mockNext).not.toHaveBeenCalled();
     });
 
     it('responds with status code 400 if "recipientType" is invalid', () => {
-      mockReq.body.recipientType = undefined;
+      mockReq.body!.recipientType = undefined;
 
-      twimlRoute(mockReq as any, mockRes as any, mockNext);
+      twimlRoute(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.status.mock.calls).toEqual([[400]]);
-      expect(mockRes.send.mock.calls).toEqual([['Invalid "recipientType".']]);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.send).toHaveBeenCalledWith('Invalid "recipientType".');
+      expect(mockNext).not.toHaveBeenCalled();
     });
 
     describe('when all body values are present', () => {
       it('constructs a voice response', () => {
-        twimlRoute(mockReq as any, mockRes as any, mockNext);
-        expect(mockedVoiceResponse.mock.calls).toEqual([[]]);
+        twimlRoute(mockReq as Request, mockRes as Response, mockNext);
+        expect(mockedVoiceResponse).toHaveBeenCalledTimes(1);
+        expect(mockedVoiceResponse).toHaveBeenCalledWith();
       });
 
       it('dials a client', () => {
-        mockReq.body.recipientType = 'client';
-        twimlRoute(mockReq as any, mockRes as any, mockNext);
-        expect(mockedVoiceResponse.mock.results).toHaveLength(1);
+        mockReq.body!.recipientType = 'client';
+        twimlRoute(mockReq as Request, mockRes as Response, mockNext);
 
         const mockVoiceResponse = mockedVoiceResponse.mock.results[0].value;
-        const mockDialFn = mockVoiceResponse.dial;
-        expect(mockDialFn.mock.calls).toEqual([
-          [
-            {
-              answerOnBridge: true,
-              callerId: undefined,
-            },
-          ],
-        ]);
-        expect(mockDialFn.mock.results).toHaveLength(1);
-
-        const mockDial = mockDialFn.mock.results[0].value;
-        const mockClientFn = mockDial.client;
-        expect(mockClientFn.mock.calls).toEqual([[mockReq.body.To]]);
+        expect(mockVoiceResponse.dial).toHaveBeenCalledWith({
+          answerOnBridge: true,
+          callerId: undefined, // Since From is not set
+        });
+        expect(mockVoiceResponse.dial.mock.results[0].value.client).toHaveBeenCalledWith(mockReq.body!.To);
       });
 
       it('dials a number', () => {
-        mockReq.body.recipientType = 'number';
-        twimlRoute(mockReq as any, mockRes as any, mockNext);
-        expect(mockedVoiceResponse.mock.results).toHaveLength(1);
+        mockReq.body!.recipientType = 'number';
+        twimlRoute(mockReq as Request, mockRes as Response, mockNext);
 
         const mockVoiceResponse = mockedVoiceResponse.mock.results[0].value;
-        const mockDialFn = mockVoiceResponse.dial;
-        expect(mockDialFn.mock.calls).toEqual([
-          [
-            {
-              answerOnBridge: true,
-              callerId: 'mock-twiliocredentials-phonenumber',
-            },
-          ],
-        ]);
-        expect(mockDialFn.mock.results).toHaveLength(1);
-
-        const mockDial = mockDialFn.mock.results[0].value;
-        const mockNumberFn = mockDial.number;
-        expect(mockNumberFn.mock.calls).toEqual([[mockReq.body.To]]);
+        expect(mockVoiceResponse.dial).toHaveBeenCalledWith({
+          answerOnBridge: true,
+          callerId: 'mock-twiliocredentials-phonenumber',
+        });
+        expect(mockVoiceResponse.dial.mock.results[0].value.number).toHaveBeenCalledWith(mockReq.body!.To);
       });
 
       it('responds with twiml', () => {
-        twimlRoute(mockReq as any, mockRes as any, mockNext);
+        twimlRoute(mockReq as Request, mockRes as Response, mockNext);
 
-        expect(mockedVoiceResponse.mock.results).toHaveLength(1);
         const mockVoiceResponse = mockedVoiceResponse.mock.results[0].value;
-        const mockVoiceResponseToString = mockVoiceResponse.toString;
-        expect(mockVoiceResponseToString.mock.calls).toEqual([[]]);
-        const toStringRes = mockVoiceResponseToString.mock.results[0].value;
+        expect(mockVoiceResponse.toString).toHaveBeenCalledTimes(1);
+        const toStringRes = mockVoiceResponse.toString.mock.results[0].value;
 
-        expect(mockRes.header.mock.calls).toEqual([
-          ['Content-Type', 'text/xml'],
-        ]);
-        expect(mockRes.status.mock.calls).toEqual([[200]]);
-        expect(mockRes.send.mock.calls).toEqual([[toStringRes]]);
+        expect(mockRes.header).toHaveBeenCalledWith('Content-Type', 'text/xml');
+        expect(mockRes.status).toHaveBeenCalledWith(200);
+        expect(mockRes.send).toHaveBeenCalledWith(toStringRes);
+        expect(mockNext).not.toHaveBeenCalled();
       });
     });
   });

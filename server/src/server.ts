@@ -6,6 +6,8 @@ import { createTokenRoute } from './routes/token';
 import { createTwimlRoute } from './routes/twiml';
 import { createLogMiddleware } from './middlewares/log';
 import { auth } from 'express-oauth2-jwt-bearer';
+import Twilio from 'twilio';
+import { twiml } from 'twilio';
 
 export function createExpressApp(serverConfig: ServerConfig) {
   const app = express();
@@ -17,13 +19,7 @@ export function createExpressApp(serverConfig: ServerConfig) {
 
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
-
-  /**
-   * Configure the following line according to your environment, development or
-   * production.
-   */
   app.set('trust proxy', 1);
-
   app.use(createLogMiddleware());
 
   const tokenRouter = Router();
@@ -36,32 +32,45 @@ export function createExpressApp(serverConfig: ServerConfig) {
 
   app.get('/', (req, res) => res.status(200).send('Server is healthy'));
 
-  // Set up an array to track connected WebSocket clients
+  // Updated /resume endpoint to continue transcription
+  app.post('/resume', (req, res) => {
+    const twimlResponse = new twiml.VoiceResponse();
+    const start = twimlResponse.start();
+    start.transcription({
+      languageCode: 'en-US',
+      statusCallbackUrl:
+        'https://4638-223-185-43-22.ngrok-free.app/transcription',
+    });
+    twimlResponse.pause({ length: 1 });
+    twimlResponse.redirect({ method: 'POST' }, '/resume');
+    console.log('Resume TwiML:', twimlResponse.toString());
+    res
+      .header('Content-Type', 'text/xml')
+      .status(200)
+      .send(twimlResponse.toString());
+  });
+
   const wsClients: WebSocket[] = [];
 
-  // Handle transcription results from Twilio
   app.post('/transcription', (req, res) => {
     console.log('Transcription result received:', req.body);
-  
-    // Check for the 'TranscriptionData' field, and parse the transcript from it
     const transcriptionData = req.body.TranscriptionData;
     if (transcriptionData) {
-      // Parse the transcription data to extract the actual text
       try {
         const parsedData = JSON.parse(transcriptionData);
         const transcriptionText = parsedData.transcript;
-  
         if (transcriptionText) {
           console.log('Transcription Text:', transcriptionText);
-  
-          // Broadcast transcription to all connected WebSocket clients
           wsClients.forEach((ws) => {
             if (ws.readyState === WebSocket.OPEN) {
-              ws.send(JSON.stringify({ transcription: transcriptionText }));
+              ws.send(
+                JSON.stringify({
+                  transcription: transcriptionText,
+                  sequenceId: req.body.SequenceId, 
+                }),
+              );
             }
           });
-        } else {
-          console.log('No transcript found in TranscriptionData.');
         }
       } catch (error) {
         console.error('Error parsing TranscriptionData:', error);
@@ -69,28 +78,70 @@ export function createExpressApp(serverConfig: ServerConfig) {
     } else {
       console.log('No TranscriptionData found in request body.');
     }
-  
-    // Respond to Twilio (Twilio expects an empty response)
     res.status(200).send('');
   });
 
-  // Create HTTP server instance
-  const server = new HttpServer(app);
+  const twilioClient = Twilio(
+    serverConfig.ACCOUNT_SID,
+    serverConfig.AUTH_TOKEN,
+  );
 
-  // Create WebSocket server
+  const server = new HttpServer(app);
   const wss = new WebSocketServer({
     server,
-    path: '/transcription', // WebSocket connection path
+    path: '/transcription',
   });
 
-  // WebSocket logic for live transcription
   wss.on('connection', (ws) => {
     console.log('New WebSocket connection established');
     wsClients.push(ws);
 
+    ws.on('message', async (message) => {
+      const data = JSON.parse(message.toString());
+      if (data.type === 'tts' && data.text && data.callSid) {
+        try {
+          const call = await twilioClient.calls(data.callSid).fetch();
+          const parentCallSid = call.parentCallSid;
+          let recipientCallSid = data.callSid;
+
+          if (!parentCallSid) {
+            const calls = await twilioClient.calls.list({
+              parentCallSid: data.callSid,
+              limit: 1,
+            });
+            if (calls.length > 0) {
+              recipientCallSid = calls[0].sid;
+            } else {
+              console.error('No child call found for TTS');
+              return;
+            }
+          }
+
+          const twimlResponse = new twiml.VoiceResponse();
+          twimlResponse.say(
+            {
+              voice: 'Polly.Joanna',
+              language: 'en-US',
+            },
+            data.text,
+          );
+          twimlResponse.redirect(
+            { method: 'POST' },
+            'https://4638-223-185-43-22.ngrok-free.app/resume',
+          );
+
+          await twilioClient.calls(recipientCallSid).update({
+            twiml: twimlResponse.toString(),
+          });
+          console.log(`TTS sent to call ${recipientCallSid}: ${data.text}`);
+        } catch (error) {
+          console.error('Failed to send TTS:', error);
+        }
+      }
+    });
+
     ws.on('close', (code, reason) => {
       console.log('WebSocket closed', { code, reason });
-      // Remove closed client from the list
       const index = wsClients.indexOf(ws);
       if (index !== -1) wsClients.splice(index, 1);
     });
