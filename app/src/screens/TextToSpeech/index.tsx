@@ -46,8 +46,8 @@ const TranscriptionScreen = () => {
     const connectWebSocket = () => {
       if (activeCall?.info?.state === 'connected' && !socket) {
         const wsUrl = __DEV__
-          ? `wss://4638-223-185-43-22.ngrok-free.app/transcription`
-          : `wss://4638-223-185-43-22.ngrok-free.app/transcription`;
+          ? `wss://linzo-backend.onrender.com/transcription`
+          : `wss://linzo-backend.onrender.com/transcription`;
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {

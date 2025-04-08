@@ -36,8 +36,8 @@ const TranscriptionScreenDeaf = () => {
     if (activeCall?.info?.state === 'connected') {
       console.log('Active Call:', activeCall);
       const wsUrl = __DEV__
-        ? `wss://4638-223-185-43-22.ngrok-free.app/transcription`
-        : `wss://4638-223-185-43-22.ngrok-free.app/transcription`;
+        ? `wss://linzo-backend.onrender.com/transcription`
+        : `wss://linzo-backend.onrender.com/transcription`;
 
       let reconnectAttempts = 0;
       const maxReconnectAttempts = 5;

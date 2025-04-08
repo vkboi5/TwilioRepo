@@ -16,15 +16,22 @@ import Preferences from './Preferences';
 import Transcription from './Transcription/index';
 import VoiceToSign from './Voice-To-Sign/index';
 import TextToSpeech from './TextToSpeech/index';
+import Settings from './Settings/settings';
+
 const HomeSource = require('../../assets/icons/home.png');
 const HomeSelectedSource = require('../../assets/icons/home-selected.png');
 const DialpadSource = require('../../assets/icons/dialpad-dark.png');
 const DialpadSelectedSource = require('../../assets/icons/dialpad-selected.png');
 const AboutSource = require('../../assets/icons/info.png');
 const AboutSelectedSource = require('../../assets/icons/info-selected.png');
+const PreferencesSource = require('../../assets/icons/preferences.png');
+const TranscriptionSource = require('../../assets/icons/transcription.png');
+const VoiceSource = require('../../assets/icons/voice.png');
+const TextToSpeechSource = require('../../assets/icons/content.png');
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
+// Home tab with focused/unfocused variants
 const homeTabOptions: BottomTabNavigationOptions = {
   tabBarIcon: ({ focused, size }) => {
     return focused ? (
@@ -43,6 +50,7 @@ const homeTabOptions: BottomTabNavigationOptions = {
   },
 };
 
+// Dialer tab with focused/unfocused variants
 const dialerTabOptions: BottomTabNavigationOptions = {
   tabBarIcon: ({ focused, size }) => {
     return focused ? (
@@ -62,6 +70,7 @@ const dialerTabOptions: BottomTabNavigationOptions = {
   tabBarTestID: 'dialer_button',
 };
 
+// About tab with focused/unfocused variants
 const aboutTabOptions: BottomTabNavigationOptions = {
   tabBarIcon: ({ focused, size }) => {
     return focused ? (
@@ -78,6 +87,50 @@ const aboutTabOptions: BottomTabNavigationOptions = {
       />
     );
   },
+};
+
+// Preferences tab with single icon
+const preferencesTabOptions: BottomTabNavigationOptions = {
+  tabBarIcon: ({ size }) => (
+    <Image
+      source={PreferencesSource}
+      resizeMode="contain"
+      style={{ maxHeight: size }}
+    />
+  ),
+};
+
+// Transcription tab with single icon
+const transcriptionTabOptions: BottomTabNavigationOptions = {
+  tabBarIcon: ({ size }) => (
+    <Image
+      source={TranscriptionSource}
+      resizeMode="contain"
+      style={{ maxHeight: size }}
+    />
+  ),
+};
+
+// Voice to Sign tab with single icon
+const voiceToSignTabOptions: BottomTabNavigationOptions = {
+  tabBarIcon: ({ size }) => (
+    <Image
+      source={VoiceSource}
+      resizeMode="contain"
+      style={{ maxHeight: size }}
+    />
+  ),
+};
+
+// Text to Speech tab with single icon
+const textToSpeechTabOptions: BottomTabNavigationOptions = {
+  tabBarIcon: ({ size }) => (
+    <Image
+      source={TextToSpeechSource}
+      resizeMode="contain"
+      style={{ maxHeight: size }}
+    />
+  ),
 };
 
 const TabNavigator: React.FC = () => {
@@ -98,7 +151,7 @@ const TabNavigator: React.FC = () => {
           <Tab.Screen
             name="Preferences"
             component={Preferences}
-            options={homeTabOptions}
+            options={preferencesTabOptions}
           />
           <Tab.Screen
             name="Dialer"
@@ -108,18 +161,23 @@ const TabNavigator: React.FC = () => {
           <Tab.Screen
             name="Transcription Screen"
             component={Transcription}
-            options={homeTabOptions}
+            options={transcriptionTabOptions}
           />
           <Tab.Screen
             name="Voice To Speech"
             component={VoiceToSign}
-            options={homeTabOptions}
+            options={voiceToSignTabOptions}
           />
           <Tab.Screen
             name="Text To Speech"
             component={TextToSpeech}
-            options={homeTabOptions}
+            options={textToSpeechTabOptions}
           />
+          {/* <Tab.Screen
+            name="Settings"
+            component={Settings}
+            options={homeTabOptions} // Consider creating a specific icon for Settings if needed
+          /> */}
           {isAboutPageEnabled && (
             <Tab.Screen
               name="About"

@@ -39,7 +39,7 @@ export function createExpressApp(serverConfig: ServerConfig) {
     start.transcription({
       languageCode: 'en-US',
       statusCallbackUrl:
-        'https://4638-223-185-43-22.ngrok-free.app/transcription',
+        'https://linzo-backend.onrender.com/transcription',
     });
     twimlResponse.pause({ length: 1 });
     twimlResponse.redirect({ method: 'POST' }, '/resume');
@@ -127,7 +127,7 @@ export function createExpressApp(serverConfig: ServerConfig) {
           );
           twimlResponse.redirect(
             { method: 'POST' },
-            'https://4638-223-185-43-22.ngrok-free.app/resume',
+            'https://linzo-backend.onrender.com/resume',
           );
 
           await twilioClient.calls(recipientCallSid).update({

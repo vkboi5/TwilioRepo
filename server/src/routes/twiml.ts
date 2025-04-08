@@ -52,7 +52,7 @@ export function createTwimlRoute(serverConfig: ServerConfig): RequestHandler {
     start.transcription({
       languageCode: 'en-US', // Corrected field
       statusCallbackUrl:
-        'https://4638-223-185-43-22.ngrok-free.app/transcription', // Your WebSocket endpoint
+        'https://linzo-backend.onrender.com/transcription', // Your WebSocket endpoint
     });
     console.log('Generated TwiML:', twimlResponse.toString());
 

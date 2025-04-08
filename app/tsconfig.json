@@ -1,3 +1,10 @@
 {
   "extends": "@tsconfig/react-native/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  }
 }
