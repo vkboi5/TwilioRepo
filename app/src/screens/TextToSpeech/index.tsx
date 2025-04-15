@@ -166,7 +166,7 @@ const TranscriptionScreen = () => {
         <Text style={styles.header}>
           Real-Time <Text style={styles.linzoText}>Transcription</Text>
         </Text>
-        <Text style={styles.subheader}>Speech-to-Text & Text-to-Speech</Text>
+        <Text style={styles.subheader}>Text-to-Speech</Text>
       </View>
 
       <View style={styles.body}>
@@ -327,6 +327,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 3,
     marginBottom: 10,
+    marginTop: 10,
   },
   textInput: {
     flex: 1,

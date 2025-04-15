@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   linzoLogo: {
     width: 120,
     height: 120,
-    marginBottom: 15,
+    marginBottom: -5,
   },
   greeting: {
     fontSize: 30,
@@ -112,8 +112,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dialerImage: {
-    width: 360,
-    height: 380,
+    width: 300,
+    height: 300,
     marginTop: 60,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },

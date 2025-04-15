@@ -7,6 +7,7 @@ import {
   Platform,
   Image,
   Text,
+  TouchableOpacity,
 } from 'react-native';
 import BackspaceButton from './BackspaceButton';
 import MakeCallButton from '../../components/Call/MakeCallButton';
@@ -14,12 +15,15 @@ import ToggleClientInputButton from './ToggleClientInputButton';
 import Dialpad from '../../components/Dialpad';
 import OutgoingRemoteParticipant from './OutgoingRemoteParticipant';
 import useDialer from './hooks';
+import { useActiveCall } from '../../hooks/activeCall';
+import { useNavigation } from '@react-navigation/native';
 
-// Assets
-const LinzoLogo = require('../../../assets/icons/linzo-logo.png'); // Same logo as other screens
+const LinzoLogo = require('../../../assets/icons/linzo-logo.png');
 
 const Dialer: React.FC = () => {
   const { dialpad, makeCall, outgoing, recipientToggle } = useDialer();
+  const activeCall = useActiveCall();
+  const navigation = useNavigation();
 
   const backspaceButton = React.useMemo(
     () =>
@@ -31,18 +35,28 @@ const Dialer: React.FC = () => {
     [dialpad.backspace.isDisabled, dialpad.backspace.handle],
   );
 
+  // Check if call is connected
+  const isCallConnected = activeCall?.info?.state === 'connected';
+
+  const handleStartTranslation = () => {
+    if (isCallConnected && activeCall?.info?.sid) {
+      navigation.navigate('Translation', {
+        callSid: activeCall.info.sid,
+        enableTranslation: true,
+      });
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
         barStyle="dark-content"
         backgroundColor={Platform.OS === 'android' ? '#F4F6F8' : 'transparent'}
       />
-      {/* Header with Logo */}
       <View style={styles.headerContainer}>
         <Image source={LinzoLogo} style={styles.linzoLogo} resizeMode="contain" />
       </View>
 
-      {/* Remote Participant */}
       <View style={styles.remoteParticipant}>
         <OutgoingRemoteParticipant
           outgoingIdentity={outgoing.client.value}
@@ -52,7 +66,6 @@ const Dialer: React.FC = () => {
         />
       </View>
 
-      {/* Dialpad */}
       <View style={styles.dialpadContainer}>
         <Dialpad
           disabled={dialpad.input.isDisabled}
@@ -60,7 +73,6 @@ const Dialer: React.FC = () => {
         />
       </View>
 
-      {/* Buttons */}
       <View style={styles.buttonsContainer}>
         <ToggleClientInputButton
           disabled={recipientToggle.isDisabled}
@@ -74,10 +86,16 @@ const Dialer: React.FC = () => {
         {backspaceButton}
       </View>
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Powered by Linzo</Text>
-      </View>
+      <TouchableOpacity
+        style={[
+          styles.translateButton,
+          !isCallConnected && styles.translateButtonDisabled,
+        ]}
+        onPress={handleStartTranslation}
+        disabled={!isCallConnected}
+      >
+        <Text style={styles.translateButtonText}>Start Translation</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -85,7 +103,7 @@ const Dialer: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4F6F8', // Soft gray-blue, consistent with other screens
+    backgroundColor: '#F4F6F8',
     alignItems: 'center',
   },
   headerContainer: {
@@ -94,30 +112,13 @@ const styles = StyleSheet.create({
   },
   linzoLogo: {
     width: 100,
-    height:75,
-    marginBottom: 5,
-  },
-  header: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#1A3C6C', // Darker blue for readability
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'Arial' : 'Roboto',
-  },
-  linzoText: {
-    color: '#0263E0', // Linzo blue accent
+    height: 75,
+    marginBottom: -15,
   },
   remoteParticipant: {
     width: '90%',
     padding: 15,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
     alignItems: 'center',
   },
   dialpadContainer: {
@@ -132,17 +133,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '90%',
     paddingVertical: 20,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
     marginBottom: 10,
   },
   emptyButton: {
-    width: 80, // Adjusted for balance
+    width: 80,
+  },
+  translateButton: {
+    backgroundColor: '#A286F6',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  translateButtonDisabled: {
+    backgroundColor: '#CCCCCC',
+  },
+  translateButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   footer: {
     paddingVertical: 10,
@@ -150,7 +159,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#999', // Light gray
+    color: '#999',
     fontFamily: Platform.OS === 'ios' ? 'Arial' : 'Roboto',
   },
 });

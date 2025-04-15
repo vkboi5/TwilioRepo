@@ -91,3 +91,48 @@ See [docs/known-issues.md](./docs/known-issues.md) for details on known issues a
 ## License
 
 See [LICENSE](LICENSE)
+
+# Real-Time Translation Feature
+
+This application now supports real-time bi-directional translation during calls using OpenAI's Realtime API. This allows callers speaking different languages to communicate seamlessly, with each hearing the conversation in their preferred language.
+
+## How it Works
+
+1. When a call is connected, the user can select their preferred language.
+2. The application establishes a WebSocket connection to the OpenAI Realtime API.
+3. Audio from both parties is captured, processed, and translated in real-time.
+4. Each user hears the conversation in their preferred language.
+
+## Supported Languages
+
+- English (en-US)
+- Hindi (hi-IN)
+- Japanese (ja-JP)
+- Spanish (es-ES)
+- French (fr-FR)
+
+## Setup
+
+1. Get an OpenAI API key with access to the Realtime API (beta).
+2. Add your OpenAI API key to the server's `.env` file:
+   ```
+   OPENAI_API_KEY=your_openai_api_key_here
+   OPENAI_ORGANIZATION=your_openai_org_id_here
+   ```
+3. Restart the server.
+
+## Usage
+
+1. Start a call.
+2. Select your preferred language from the dropdown in the call interface.
+3. Begin speaking - your speech will be automatically translated to the other party's preferred language.
+4. The other party's speech will be translated to your preferred language.
+
+## Technical Details
+
+The translation feature uses:
+- WebSockets for real-time audio streaming
+- OpenAI's Realtime API for voice-to-voice translation
+- React Native's audio playback capabilities
+
+The implementation minimizes latency by using direct voice-to-voice translation instead of the traditional speech-to-text, translation, and text-to-speech pipeline.

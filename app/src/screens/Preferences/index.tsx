@@ -46,7 +46,7 @@ const Preferences: React.FC = () => {
       <View style={styles.headerContainer}>
         <Image source={LinzoLogo} style={styles.linzoLogo} resizeMode="contain" />
         <Text style={styles.title}>
-          Set Your <Text style={styles.linzoText}>Preferences</Text>
+          Set Your <Text style={styles.linzoText}>Preference</Text>
         </Text>
       </View>
 

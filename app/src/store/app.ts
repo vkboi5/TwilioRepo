@@ -3,10 +3,12 @@ import { voiceReducer } from './voice';
 import { userSlice } from './user';
 import { loginAndRegisterSlice } from './loginAndRegister';
 import { createLogMiddleware } from './middleware/log';
+import { languagePreferencesSlice } from './voice/call/languagePreferences';
 
 export const defaultReducer = {
   [userSlice.name]: userSlice.reducer,
   [loginAndRegisterSlice.name]: loginAndRegisterSlice.reducer,
+  languagePreferences: languagePreferencesSlice.reducer,
   voice: voiceReducer,
 };
 

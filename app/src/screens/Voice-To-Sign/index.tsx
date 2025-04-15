@@ -241,9 +241,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   linzoLogo: {
-    width: 180,
-    height: 180,
-    marginBottom: 10,
+    width: 140,
+    height: 140,
+    marginBottom: 5,
   },
   header: {
     fontSize: 28,
