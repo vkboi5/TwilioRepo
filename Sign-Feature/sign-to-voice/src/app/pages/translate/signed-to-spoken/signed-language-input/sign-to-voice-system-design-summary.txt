@@ -1,0 +1,11 @@
+Sign to Voice System Design (8-line Summary):
+
+1. Input Capture: Camera component captures sign language gestures via device camera or uploaded video.
+2. Frame Processing: Video frames are extracted and prepared for pose detection.
+3. Pose Detection: Machine learning models identify key points on hands and body.
+4. Sign Recognition: Detected poses are matched against known sign patterns and converted to SignWriting notation.
+5. Text Generation: SignWriting notation is translated into natural language text based on recognized signs.
+6. Speech Synthesis: Text is converted to spoken audio using text-to-speech technology.
+7. State Management: NGXS store maintains application state (input mode, languages, translations) across components.
+8. User Interface: Angular/Ionic components provide responsive UI for input control and output display.
+
