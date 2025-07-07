@@ -10,3 +10,5 @@ coverage/
 # logs
 combined.log
 error.log
+
+google-stt-tts.json
