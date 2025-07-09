@@ -39,7 +39,7 @@ export function createExpressApp(serverConfig: ServerConfig) {
     start.transcription({
       languageCode: 'en-US',
       statusCallbackUrl:
-        'https://linzo-backend.onrender.com/transcription',
+        `${serverConfig.DEFAULT_URL}/transcription`,
     });
     twimlResponse.pause({ length: 1 });
     twimlResponse.redirect({ method: 'POST' }, '/resume');
@@ -127,7 +127,7 @@ export function createExpressApp(serverConfig: ServerConfig) {
           );
           twimlResponse.redirect(
             { method: 'POST' },
-            'https://linzo-backend.onrender.com/resume',
+            `${serverConfig.DEFAULT_URL}/resume`,
           );
 
           await twilioClient.calls(recipientCallSid).update({

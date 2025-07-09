@@ -60,7 +60,7 @@ export class TranscriptionService implements OnDestroy {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectInterval = 3000; // 3 seconds
-  private wsUrl = 'wss://linzo-backend.onrender.com/transcription';
+  private wsUrl = 'wss://matthew-sense-island-reserved.trycloudflare.com/transcription';
   private debugMode = true; // Set to true to enable verbose logging
 
   // BehaviorSubject to share the transcription data with components

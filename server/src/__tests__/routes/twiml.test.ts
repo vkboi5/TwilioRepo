@@ -18,6 +18,7 @@ const mockServerConfig = {
   FCM_PUSH_CREDENTIAL_SID: 'mock-twiliocredentials-fcmpushcredentialsid',
   AUTH0_AUDIENCE: 'mock-auth0-audience',
   AUTH0_ISSUER_BASE_URL: 'mock-auth0-issuer-base-url',
+  DEFAULT_URL: 'https://mock-default-url.com',
 };
 
 beforeEach(() => {

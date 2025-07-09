@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateTranscription } from '../../store/voice/call/transcription';
 import type { State } from '../../store/app';
 import FastImage from 'react-native-fast-image';
+import { getEnvVariable } from '../../util/env';
 
 // Assets
 const LinzoLogo = require('../../../assets/icons/linzo-logo.png'); // Assuming same logo as Home
@@ -107,9 +108,8 @@ const VoiceToSign = () => {
   useEffect(() => {
     if (activeCall?.info?.state === 'connected') {
       console.log('Active Call:', activeCall);
-      const wsUrl = __DEV__
-        ? `wss://linzo-backend.onrender.com/transcription`
-        : `wss://linzo-backend.onrender.com/transcription`;
+      const baseUrl = getEnvVariable('DEFAULT_URL').replace('https://', '');
+      const wsUrl = `wss://${baseUrl}/transcription`;
 
       let reconnectAttempts = 0;
       const maxReconnectAttempts = 5;

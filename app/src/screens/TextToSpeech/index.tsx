@@ -15,6 +15,7 @@ import {
 import { useActiveCall } from '../../hooks/activeCall';
 import { useSelector } from 'react-redux';
 import type { State } from '../../store/app';
+import { getEnvVariable } from '../../util/env';
 
 // Assets
 const LinzoLogo = require('../../../assets/icons/linzo-logo.png');
@@ -45,9 +46,8 @@ const TranscriptionScreen = () => {
 
     const connectWebSocket = () => {
       if (activeCall?.info?.state === 'connected' && !socket) {
-        const wsUrl = __DEV__
-          ? `wss://linzo-backend.onrender.com/transcription`
-          : `wss://linzo-backend.onrender.com/transcription`;
+        const baseUrl = getEnvVariable('DEFAULT_URL').replace('https://', '');
+        const wsUrl = `wss://${baseUrl}/transcription`;
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {

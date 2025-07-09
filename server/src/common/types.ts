@@ -21,7 +21,11 @@ export interface Flags {
   readonly [EnvVars.EmailVerificationRegex]?: string;
 }
 
-export type ServerConfig = TwilioCredentials & Auth0Credentials & Flags;
+export interface AppConfig {
+  readonly [EnvVars.DefaultUrl]: string;
+}
+
+export type ServerConfig = TwilioCredentials & Auth0Credentials & Flags & AppConfig;
 
 export enum Platform {
   Android = 'android',

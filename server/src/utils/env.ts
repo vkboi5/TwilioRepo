@@ -13,6 +13,7 @@ export enum EnvVars {
   AuthToken = 'AUTH_TOKEN',
   CallerId = 'CALLER_ID',
   ClientIdentity = 'CLIENT_IDENTITY',
+  DefaultUrl = 'DEFAULT_URL',
   EmailVerificationRegex = 'EMAIL_VERIFICATION_REGEX',
   FcmPushCredentialSid = 'FCM_PUSH_CREDENTIAL_SID',
   OutgoingApplicationSid = 'TWIML_APP_SID',
@@ -44,6 +45,7 @@ export function getServerCredentials(): ServerConfig | undefined {
     EnvVars.Auth0IssuerBaseUrl,
     EnvVars.AuthToken,
     EnvVars.CallerId,
+    EnvVars.DefaultUrl,
     EnvVars.OutgoingApplicationSid,
   ].map((envVarKey) => [envVarKey, getEnvVar(envVarKey)]);
 
